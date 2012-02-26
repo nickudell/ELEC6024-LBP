@@ -29,11 +29,6 @@ input = args.imagename[0]
 
 im = cv.LoadImageM(input + '.tiff', cv.CV_LOAD_IMAGE_UNCHANGED)
 
-max_dim = im.width if im.width > im.height else im.height
-if args.sample >= max_dim:
-	print 'Sample too big.  Defaulting to 32x32'
-	args.sample = 32
-
 if im.channels != 1:
 	grey = cv.CreateMat(im.height, im.width, cv.CV_8UC1)
 	cv.CvtColor(im, grey, cv.CV_RGB2GRAY)
@@ -41,7 +36,15 @@ if im.channels != 1:
 	
 if args.contrast != 1:
 	im = contrast(im, args.contrast)
-	
+
+def check_sample(max_dim):
+	if args.sample >= max_dim:
+		print 'Sample too big.  Defaulting to 32x32'
+		args.sample = 32
+		
+wscale = 500.0/im.width
+hscale = 500.0/im.height
+
 if args.rotate != 0:
 	im = rotate(im, args.rotate)
 	angle = args.rotate
@@ -51,32 +54,36 @@ if args.rotate != 0:
 	h = float(im.height)
 	width = w/(np.abs(np.sin(angle))*(h/w + np.abs((np.cos(angle)/np.sin(angle)))))
 	height = (w/h)*width
+	max_dim = width if width > height else height
+	check_sample(max_dim)
 	pt1 = (centre[0]-int(width/2), centre[1]-int(height/2))
 	pt2 = (centre[0]+int(width/2)-1, centre[1]+int(height/2)-1)
-	# cv.Rectangle(im, pt1, pt2, 255)
+	cv.Rectangle(im, pt1, pt2, 255)
 	pos = (random.randint(pt1[0], pt2[0]-args.sample), 
 		   random.randint(pt1[0], pt2[0]-args.sample))
 		
 	resize = cv.CreateMat(500, 500, cv.CV_8UC1)
 	cv.Resize(im, resize)
-	w = int(pos[0]*(500/w))
-	h = int(pos[1]*(500/h))
-	cv.Rectangle(resize, (w,h), (w+args.sample, h+args.sample), 255, 2)
+	w = int(pos[0]*wscale)
+	h = int(pos[1]*hscale)
+	cv.Rectangle(resize, (w,h), (w+int(args.sample*wscale), h+int(args.sample*wscale)), 255, 2)
 	
 	cv.NamedWindow('Rotated Texture Sample')
 	cv.ShowImage('Rotated Texture Sample', resize)
 
-else:	
+else:
+	max_dim = im.width if im.width > im.height else im.height
+	check_sample(max_dim)
+		
 	pos = (random.randint(0, im.height-1-args.sample), random.randint(0, im.width-1-args.sample))
 	resize = cv.CreateMat(500, 500, cv.CV_8UC1)
 	cv.Resize(im, resize)
-	w = int(pos[0]*(500.0/im.width))
-	h = int(pos[1]*(500.0/im.height))
-	cv.Rectangle(resize, (w,h), (w+args.sample, h+args.sample), 255, 2)
+	w = int(pos[0]*wscale)
+	h = int(pos[1]*hscale)
+	cv.Rectangle(resize, (w,h), (w+int(args.sample*wscale), h+int(args.sample*hscale)), 255, 2)
 	
 	cv.NamedWindow('Texture Sample')
 	cv.ShowImage('Texture Sample', resize)	
-	
 
 im = cv.GetSubRect(im, pos + (args.sample, args.sample))
 sub = cv.CreateMat(args.sample+2,args.sample+2, cv.CV_8UC1)
@@ -207,7 +214,7 @@ if args.show_hist:
 	plt.hist(scores, 32)
 	plt.title(input.title() + ' ' + str(pos))
 	plt.xlim(0,255)
-	plt.savefig('./Figures/'+input+str(pos))
+	# plt.savefig('./Figures/'+input+str(pos))
 	plt.show()
 else:
 	cv.WaitKey(0)

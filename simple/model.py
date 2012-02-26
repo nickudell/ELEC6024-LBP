@@ -1,6 +1,6 @@
 import cv, pickle, numpy as np, matplotlib.pyplot as plt
 
-input = 'wool'
+input = 'bark'
 
 im = cv.LoadImageM(input + '.tiff', cv.CV_LOAD_IMAGE_UNCHANGED)
 sub = cv.CreateMat(im.height+2, im.width+2, cv.CV_8UC1)
@@ -96,6 +96,8 @@ lbp_norm = []
 for i in lbp_hist:
 	lbp_norm.append(i/float(sum(lbp_hist)))
 
+# print lbp_norm
+# exit()
 # plt.hist(scores, 32, normed = True)
 # plt.xlim(0,255)
 # plt.title(input.title()+' texture spectrum')
