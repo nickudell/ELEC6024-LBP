@@ -20,9 +20,9 @@ def contrast(im, value):
 parser = argparse.ArgumentParser(description = 'Simple implementation of LBP texture recognition.')
 parser.add_argument('imagename', nargs = 1, help = 'Texture to load.')
 parser.add_argument('--hist', dest = 'show_hist', action = 'store_true', help = 'Display histogram output.')
-parser.add_argument('--rotate', nargs = '?', metavar = 'int', dest = 'rotate', type = int, default = 0, help = 'Rotate image and take samples from close to centre.')
-parser.add_argument('--sample', nargs = '?', metavar = 'int', dest = 'sample', type = int, default = 32, help = 'Dimension of the texture sample.')
-parser.add_argument('--contrast', nargs = '?', metavar = 'float', dest = 'contrast', type = float, default = 1, help = 'Alter contrast of input image')
+parser.add_argument('--rotate', nargs = '?', metavar = 'angle', dest = 'rotate', type = float, default = 0.0, help = 'Rotate image and take samples from close to centre.')
+parser.add_argument('--sample', nargs = '?', metavar = 'pixels', dest = 'sample', type = int, default = 32, help = 'Dimension of the texture sample.')
+parser.add_argument('--contrast', nargs = '?', metavar = '0-1', dest = 'contrast', type = float, default = 1, help = 'Alter contrast of input image')
 args = parser.parse_args()
 
 input = args.imagename[0]
